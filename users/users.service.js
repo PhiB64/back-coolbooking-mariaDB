@@ -7,15 +7,15 @@ class UserService {
     console.info("UserService initialized with repository");
   }
 
-  async getAllUsers() {
-    return await userRepository.getAllUsers();
-  }
+  getAllUsers = async () => {
+    return await this.userRepository.getAllUsers();
+  };
 
-  async getUserById(id) {
-    return await userRepository.getUserById(id);
-  }
+  getUserById = async (id) => {
+    return await this.userRepository.getUserById(id);
+  };
 
-  async createUser(userData) {
+  createUser = async (userData) => {
     const hashedPassword = await argon2.hash(userData.password, {
       type: argon2.argon2id,
     });
@@ -25,16 +25,16 @@ class UserService {
       password: hashedPassword,
     };
 
-    return await userRepository.createUser(safeUser);
-  }
+    return await this.userRepository.createUser(safeUser);
+  };
 
-  async updateUser(id, updateData) {
-    return await userRepository.updateUser(id, updateData);
-  }
+  updateUser = async (id, updateData) => {
+    return await this.userRepository.updateUser(id, updateData);
+  };
 
-  async deleteUser(id) {
-    return await userRepository.deleteUser(id);
-  }
+  deleteUser = async (id) => {
+    return await this.userRepository.deleteUser(id);
+  };
 }
 
 export default new UserService(userRepository);

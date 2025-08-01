@@ -12,25 +12,25 @@ class UserController {
     console.info("UserController initialized with service");
   }
 
-  async getAllUsers(req, res, next) {
+  getAllUsers = async (req, res, next) => {
     try {
-      const users = await userService.getAllUsers();
+      const users = await this.userService.getAllUsers();
       res.status(200).json(users);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async getUserById(req, res, next) {
+  getUserById = async (req, res, next) => {
     try {
-      const user = await userService.getUserById(req.params.id);
+      const user = await this.userService.getUserById(req.params.id);
       res.status(200).json(user);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async createUser(req, res, next) {
+  createUser = async (req, res, next) => {
     try {
       const { error } = createUserSchema.validate(req.body);
       if (error)
@@ -55,34 +55,39 @@ class UserController {
         avatar: avatarUrl,
       };
 
-      const newUser = await userService.createUser(userData);
+      const newUser = await this.userService.createUser(userData);
       res.status(201).json(newUser);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async updateUser(req, res, next) {
+  updateUser = async (req, res, next) => {
     try {
       const { error } = updateUserSchema.validate(req.body);
       if (error)
         throw new Error("Validation échouée : " + error.details[0].message);
 
-      const updatedUser = await userService.updateUser(req.params.id, req.body);
+      const updatedUser = await this.userService.updateUser(
+        req.params.id,
+        req.body
+      );
       res.status(200).json(updatedUser);
     } catch (error) {
       next(error);
     }
-  }
+  };
 
-  async deleteUser(req, res, next) {
+  deleteUser = async (req, res, next) => {
     try {
-      await userService.deleteUser(req.params.id);
+      await this.userService.deleteUser(req.params.id);
       res.status(204).end();
     } catch (error) {
       next(error);
     }
-  }
+  };
 }
+
+console.log("userService:", userService);
 
 export default new UserController(userService);
