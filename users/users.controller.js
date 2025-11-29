@@ -1,5 +1,5 @@
 import userService from "./users.service.js";
-import cloudinary from "../config/Cloudinary.js";
+import cloudinary from "../config/cloudinary.js";
 import fs from "fs";
 import {
   createUserSchema,
@@ -24,6 +24,8 @@ class UserController {
   getUserById = async (req, res, next) => {
     try {
       const user = await this.userService.getUserById(req.params.id);
+      if (!user)
+        return res.status(404).json({ message: "Utilisateur introuvable" });
       res.status(200).json(user);
     } catch (error) {
       next(error);
@@ -33,6 +35,7 @@ class UserController {
   createUser = async (req, res, next) => {
     try {
       const { error } = createUserSchema.validate(req.body);
+
       if (error)
         throw new Error("Validation échouée : " + error.details[0].message);
 
@@ -87,7 +90,5 @@ class UserController {
     }
   };
 }
-
-console.log("userService:", userService);
 
 export default new UserController(userService);

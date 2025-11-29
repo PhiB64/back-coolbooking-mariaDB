@@ -1,48 +1,85 @@
-import User from "../models/users.model.js";
+import { query } from "../config/db.js";
+
 const validRoles = ["owner", "tenant"];
 
 class UserRepository {
   async getAllUsers() {
-    return await User.find().select("-password");
+    const [rows] = await query(
+      "SELECT id, avatar, role, name, firstname, phone, email FROM users"
+    );
+    return rows;
   }
 
   async getUserById(id) {
-    return await User.findById(id).select("-password");
+    const [rows] = await query(
+      "SELECT id, avatar, role, name, firstname, phone, email FROM users WHERE id = ?",
+      [id]
+    );
+    return rows[0];
   }
 
   async createUser({ avatar, role, name, firstname, phone, email, password }) {
-    const existing = await User.findOne({ email });
-    if (existing) throw new Error("Email déjà utilisé");
+    const [existing] = await query("SELECT id FROM users WHERE email = ?", [
+      email,
+    ]);
+    if (existing.length) throw new Error("Email déjà utilisé");
 
-    const newUser = new User({
+    const [result] = await query(
+      "INSERT INTO users (avatar, role, name, firstname, phone, email, password) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [avatar, role, name, firstname, phone, email, password]
+    );
+
+    return {
+      id: Number(result.insertId),
       avatar,
       role,
       name,
       firstname,
       phone,
       email,
-      password,
-    });
-
-    return newUser.save();
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
   }
 
   async updateUser(id, update) {
     const { email, role } = update;
 
     if (email) {
-      const existingUser = await User.findOne({ email });
-      const isSameUser = existingUser && existingUser._id.toString() === id;
-      if (existingUser && !isSameUser) throw new Error("Email déjà utilisé");
+      const [existingUser] = await query(
+        "SELECT id FROM users WHERE email = ?",
+        [email]
+      );
+      const isSameUser =
+        existingUser.length && existingUser[0].id === parseInt(id);
+      if (existingUser.length && !isSameUser)
+        throw new Error("Email déjà utilisé");
     }
 
     if (role && !validRoles.includes(role)) throw new Error("Rôle invalide");
 
-    return User.findByIdAndUpdate(id, update, { new: true });
+    const fields = [];
+    const values = [];
+
+    for (const key in update) {
+      fields.push(`${key} = ?`);
+      values.push(update[key]);
+    }
+
+    values.push(id);
+
+    const [result] = await query(
+      `UPDATE users SET ${fields.join(", ")} WHERE id = ?`,
+      values
+    );
+
+    return result.affectedRows ? await this.getUserById(id) : null;
   }
 
   async deleteUser(id) {
-    return await User.findByIdAndDelete(id);
+    const [result] = await query("DELETE FROM users WHERE id = ?", [id]);
+    return result.affectedRows > 0;
   }
 }
+
 export default new UserRepository();

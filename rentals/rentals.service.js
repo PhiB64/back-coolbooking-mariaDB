@@ -7,23 +7,23 @@ class RentalService {
   }
 
   async createRental(data) {
-    return await rentalRepository.createRental(data);
+    return await this.rentalRepository.createRental(data);
   }
 
   async getAllRentals() {
-    return await rentalRepository.getAllRentals();
+    return await this.rentalRepository.getAllRentals();
   }
 
   async getRentalById(id) {
-    return await rentalRepository.getRentalById(id);
+    return await this.rentalRepository.getRentalById(id);
   }
 
   async updateRental(id, data) {
-    return await rentalRepository.updateRental(id, data);
+    return await this.rentalRepository.updateRental(id, data);
   }
 
   async deleteRental(id) {
-    return await rentalRepository.deleteRental(id);
+    return await this.rentalRepository.deleteRental(id);
   }
 }
 

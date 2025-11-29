@@ -1,10 +1,18 @@
-import mongoose from "mongoose";
-import Rental from "../models/rentals.model.js";
+import { query } from "../config/db.js";
 
 class RentalRepository {
   async createRental(data) {
+    const { title, location, beds, price, description, images } = data;
     try {
-      return await Rental.create(data);
+      const [result] = await query(
+        `INSERT INTO rentals (title, location, beds, price, description, images)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [title, location, beds, price, description, JSON.stringify(images)]
+      );
+      const [rows] = await query(`SELECT * FROM rentals WHERE id = ?`, [
+        result.insertId,
+      ]);
+      return rows[0];
     } catch (error) {
       throw new Error(`Erreur lors de la création du bien : ${error.message}`);
     }
@@ -12,7 +20,8 @@ class RentalRepository {
 
   async getAllRentals() {
     try {
-      return await Rental.find();
+      const [rows] = await query(`SELECT * FROM rentals`);
+      return rows;
     } catch (error) {
       throw new Error(
         `Erreur lors de la récupération des biens : ${error.message}`
@@ -22,12 +31,9 @@ class RentalRepository {
 
   async getRentalById(id) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("ID de bien invalide");
-      }
-      const rental = await Rental.findById(id);
-      if (!rental) throw new Error("Bien non trouvé");
-      return rental;
+      const [rows] = await query(`SELECT * FROM rentals WHERE id = ?`, [id]);
+      if (rows.length === 0) throw new Error("Bien non trouvé");
+      return rows[0];
     } catch (error) {
       throw new Error(
         `Erreur lors de la récupération du bien : ${error.message}`
@@ -36,13 +42,17 @@ class RentalRepository {
   }
 
   async updateRental(id, data) {
+    const { title, location, beds, price, description, images } = data;
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("ID de bien invalide");
-      }
-      const updated = await Rental.findByIdAndUpdate(id, data, { new: true });
-      if (!updated) throw new Error("Bien non trouvé pour mise à jour");
-      return updated;
+      const [result] = await query(
+        `UPDATE rentals SET title = ?, location = ?, beds = ?, price = ?, description = ?, images = ?
+         WHERE id = ?`,
+        [title, location, beds, price, description, JSON.stringify(images), id]
+      );
+      if (result.affectedRows === 0)
+        throw new Error("Bien non trouvé pour mise à jour");
+      const [rows] = await query(`SELECT * FROM rentals WHERE id = ?`, [id]);
+      return rows[0];
     } catch (error) {
       throw new Error(
         `Erreur lors de la mise à jour du bien : ${error.message}`
@@ -52,12 +62,10 @@ class RentalRepository {
 
   async deleteRental(id) {
     try {
-      if (!mongoose.Types.ObjectId.isValid(id)) {
-        throw new Error("ID de bien invalide");
-      }
-      const deleted = await Rental.findByIdAndDelete(id);
-      if (!deleted) throw new Error("Bien non trouvé pour suppression");
-      return deleted;
+      const [result] = await query(`DELETE FROM rentals WHERE id = ?`, [id]);
+      if (result.affectedRows === 0)
+        throw new Error("Bien non trouvé pour suppression");
+      return { id };
     } catch (error) {
       throw new Error(
         `Erreur lors de la suppression du bien : ${error.message}`
