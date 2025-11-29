@@ -15,7 +15,7 @@ export const createUserSchema = Joi.object({
       "any.only": `Le rôle doit être soit : ${validRoles.join(" ou ")}`,
     }),
 
-  name: Joi.string().min(2).max(30).required().messages({
+  lastname: Joi.string().min(2).max(30).required().messages({
     "string.empty": "Le nom ne peut pas être vide",
     "string.min": "Le nom doit contenir au moins 2 caractères",
     "string.max": "Le nom ne peut pas dépasser 30 caractères",
@@ -64,7 +64,7 @@ export const updateUserSchema = Joi.object({
       "any.only": `Le rôle doit être parmi : ${validRoles.join(", ")}`,
     }),
 
-  name: Joi.string().min(2).max(30).optional().messages({
+  lastname: Joi.string().min(2).max(30).optional().messages({
     "string.min": "Le nom doit contenir au moins 2 caractères",
     "string.max": "Le nom ne peut pas dépasser 30 caractères",
   }),

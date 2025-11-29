@@ -5,35 +5,43 @@ const validRoles = ["owner", "tenant"];
 class UserRepository {
   async getAllUsers() {
     const [rows] = await query(
-      "SELECT id, avatar, role, name, firstname, phone, email FROM users"
+      "SELECT id, avatar, role, lastname, firstname, phone, email FROM users"
     );
     return rows;
   }
 
   async getUserById(id) {
     const [rows] = await query(
-      "SELECT id, avatar, role, name, firstname, phone, email FROM users WHERE id = ?",
+      "SELECT id, avatar, role, lastname, firstname, phone, email FROM users WHERE id = ?",
       [id]
     );
     return rows[0];
   }
 
-  async createUser({ avatar, role, name, firstname, phone, email, password }) {
+  async createUser({
+    avatar,
+    role,
+    lastname,
+    firstname,
+    phone,
+    email,
+    password,
+  }) {
     const [existing] = await query("SELECT id FROM users WHERE email = ?", [
       email,
     ]);
     if (existing.length) throw new Error("Email déjà utilisé");
 
     const [result] = await query(
-      "INSERT INTO users (avatar, role, name, firstname, phone, email, password) VALUES (?, ?, ?, ?, ?, ?, ?)",
-      [avatar, role, name, firstname, phone, email, password]
+      "INSERT INTO users (avatar, role, lastname, firstname, phone, email, password) VALUES (?, ?, ?, ?, ?, ?, ?)",
+      [avatar, role, lastname, firstname, phone, email, password]
     );
 
     return {
       id: Number(result.insertId),
       avatar,
       role,
-      name,
+      lastname,
       firstname,
       phone,
       email,

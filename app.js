@@ -4,6 +4,7 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 
 // Import des routers
+import auth_router from "./routes/auth.router.js";
 import users_router from "./routes/users.router.js";
 import rentals_router from "./routes/rentals.router.js";
 
@@ -14,8 +15,8 @@ const port = process.env.PORT || 3000;
 
 // Liste des origines autorisées
 const allowedOrigins = [
-  "http://localhost:5173", // front local Vite
-  "https://coolbookingreact.netlify.app", // front déployé sur Netlify
+  "http://localhost:5173",
+  "https://coolbookingreact.netlify.app",
 ];
 
 // Configuration CORS
@@ -37,6 +38,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // Routes
+app.use("/auth", auth_router);
 app.use("/users", users_router);
 app.use("/rentals", rentals_router);
 

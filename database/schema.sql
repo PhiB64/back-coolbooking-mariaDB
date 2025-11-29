@@ -1,4 +1,7 @@
-
+-- Suppression des tables si elles existent déjà
+DROP TABLE IF EXISTS bookings;
+DROP TABLE IF EXISTS rentals;
+DROP TABLE IF EXISTS users;
 
 -- Table des utilisateurs
 CREATE TABLE users (
@@ -8,6 +11,7 @@ CREATE TABLE users (
     firstname VARCHAR(100) NOT NULL,
     lastname VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
+    avatar VARCHAR(255),
     role ENUM('client', 'owner') DEFAULT 'client',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
